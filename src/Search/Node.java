@@ -1,6 +1,5 @@
 package Search;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Node implements INode
@@ -8,12 +7,12 @@ public class Node implements INode
 
 	private int level;
 	private INode parent;
-	private FifteenPuzzle fp;
+	private IPuzzle puzzle;
 
-	public Node(INode parent, FifteenPuzzle fp)
+	public Node(INode parent, IPuzzle puzzle)
 	{
 		this.parent = parent;
-		this.fp = fp;
+		this.puzzle = puzzle;
 		if (parent != null)
 			level = parent.getLevel() + 1;
 	}
@@ -21,7 +20,7 @@ public class Node implements INode
 	@Override
 	public int hashCode()
 	{
-		return fp.hashCode();
+		return puzzle.hashCode();
 	}
 
 	@Override
@@ -30,9 +29,9 @@ public class Node implements INode
 		StringBuilder sb = new StringBuilder();
 		if (parent != null)
 			sb.append(parent.toString() + "\n\nStep # " + level + "\n");
-		else 
+		else
 			sb.append("Initial board:\n");
-		sb.append(fp.getPrintable());
+		sb.append(puzzle.getPrintable());
 		return sb.toString();
 	}
 
@@ -51,13 +50,13 @@ public class Node implements INode
 	@Override
 	public boolean isSolution()
 	{
-		return fp.solved();
+		return puzzle.solved();
 	}
 
 	@Override
 	public double getHValue()
 	{
-		return fp.getManhatten();
+		return puzzle.getHeuristic();
 	}
 
 	@Override
@@ -69,12 +68,6 @@ public class Node implements INode
 	@Override
 	public List<INode> getNextNodes()
 	{
-		List<INode> IList = new ArrayList<>();
-		boolean[] moves = fp.getMoves();
-		for (int i = 0; i < moves.length; i++)
-			if (moves[i])
-				IList.add(new Node(this, fp.newBoardFromMove(i)));
-		return IList;
+		return puzzle.getNextMoves(this);
 	}
-
 }

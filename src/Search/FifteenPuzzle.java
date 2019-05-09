@@ -2,21 +2,23 @@ package Search;
 
 import java.util.*;
 
-public class FifteenPuzzle
+public class FifteenPuzzle implements IPuzzle
 {
 	private int[][] board;
 	private int zx, zy;
 	private int size;
 	private boolean debug;
+	private int moves;
 
 	public FifteenPuzzle(int size, int manLim, boolean debug)
 	{
 		this.size = size;
 		this.debug = debug;
+		this.moves = 0;
 		randomBoard(manLim);
 	}
 
-	private FifteenPuzzle(int[][] board, int move, boolean debug, int zx, int zy)
+	private FifteenPuzzle(int[][] board, int move, boolean debug, int zx, int zy, int moves)
 	{
 		this.size = board.length;
 		this.board = new int[size][size];
@@ -27,6 +29,7 @@ public class FifteenPuzzle
 		this.zx = zx;
 		this.zy = zy;
 		doMove(move);
+		this.moves = moves + 1;
 	}
 
 	public int[][] getBoard()
@@ -206,7 +209,7 @@ public class FifteenPuzzle
 
 	public FifteenPuzzle newBoardFromMove(int move)
 	{
-		return new FifteenPuzzle(board, move, debug, zx, zy);
+		return new FifteenPuzzle(board, move, debug, zx, zy, moves);
 	}
 
 	@Override
@@ -240,5 +243,34 @@ public class FifteenPuzzle
 			}
 
 		return total;
+	}
+
+	@Override
+	public double getHeuristic()
+	{
+		return getManhatten();
+	}
+
+	@Override
+	public IPuzzle getNewBoard(int m)
+	{
+		return newBoardFromMove(m);
+	}
+
+	@Override
+	public List<INode> getNextMoves(INode in)
+	{
+		List<INode> IList = new ArrayList<>();
+		boolean[] moves = getMoves();
+		for (int i = 0; i < moves.length; i++)
+			if (moves[i])
+				IList.add(new Node(in, newBoardFromMove(i)));
+		return IList;
+	}
+
+	@Override
+	public int getMoveCount()
+	{
+		return moves;
 	}
 }

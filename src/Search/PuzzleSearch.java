@@ -16,14 +16,14 @@ public class PuzzleSearch implements IPuzzleSearch
 		System.out.println("\nIDA:");
 		ida(PQ);
 		
-//		PQ = new PriorityQueue<>(new HVComparator());
-//		PQ.add(i);
-//		System.out.println("\nBest First Search:");
-//		search(PQ);
-//		PQ = new PriorityQueue<>(new FVComparator());
-//		PQ.add(i);
-//		System.out.println("A*:");
-//		search(PQ);
+		PQ = new PriorityQueue<>(new HVComparator());
+		PQ.add(i);
+		System.out.println("\nBest First Search:");
+		search(PQ);
+		PQ = new PriorityQueue<>(new FVComparator());
+		PQ.add(i);
+		System.out.println("A*:");
+		search(PQ);
 	}
 
 	private void ida(PriorityQueue<INode> PQ)

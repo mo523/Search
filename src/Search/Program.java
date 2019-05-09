@@ -4,131 +4,66 @@ import java.util.*;
 
 public class Program
 {
-	private static FifteenPuzzle fp;
-	private static Scanner kb = new Scanner(System.in);
-	private static int moveAmt;
+	private static IPuzzle puzzle;
+	private static Scanner kb;
 
 	public static void main(String[] args)
 	{
+		kb = new Scanner(System.in);
 		initialMenu();
 		kb.close();
 	}
 
 	private static void initialMenu()
 	{
-		print("Welcome to Fifteen Puzzle");
-		print("\nDo you see >> \u001B[38;2;112;140;78m**\u001B[0m\n1. Colored stars\n2. Gibberish");
-		boolean debug = kb.nextInt() == 2;
-		if (debug)
-			print("Ok, using simple output");
-		print("\n1. Manual\n2. AI");
-		boolean ai = kb.nextInt() == 2;
-		print("How big would you like your board to be?");
-		int size;
-		int manLim = Integer.MAX_VALUE;
-		do
-		{
-			size = kb.nextInt();
-			if (size < 2)
-				System.out.println("ERROR! Size must be at least 2");
-			if (size > 5)
-				System.out.println("ERROR! Size cannot be more than 5");
-		} while (size < 2 || size > 5);
+		print("Welcome to the puzzle solver");
+		int gameChoice = printGet("Which puzzle would you like to do?", 1, 10);
+		boolean debug = printGet("\nDo you see >> \u001B[38;2;112;140;78m**\u001B[0m\n1. Colored stars\n2. Gibberish",
+				1, 2) == 2;
+		boolean ai = printGet("\n1. Manual\n2. AI", 1, 2) == 2;
 
-		if (ai && size > 3)
+		switch (gameChoice)
 		{
-			print("\nA* may take a long time calculating this board size");
-			print("Would you like to limit the Manhatten Distance?\n1. Yes\n2. No");
-			if (kb.nextInt() == 1)
-			{
-				print("\nWhat would you like to limit it to?");
-				printStats(size);
-				manLim = kb.nextInt();
-			}
-			else
-				print("\nThis may work, but increase the heap and stack size and prepare to wait a while");
+			case 1:
+				int size = printGet("How big would you like your board to be?", 1, 10);
+				int manLim = Integer.MAX_VALUE;
+				puzzle = new FifteenPuzzle(size, manLim, debug);
+				print("\nPuzzle created with a size of: " + size + "x" + size + "\n\t& a Manhatten distance of: "
+						+ puzzle.getHeuristic());
+				break;
+
+			default:
+				break;
 		}
-		fp = new FifteenPuzzle(size, manLim, debug);
-		print("\nPuzzle created with a size of: " + size + "x" + size + "\n\t& a Manhatten distance of: "
-				+ fp.getManhatten());
+
 		if (ai)
 			playAI();
 		else
-		{
-			kb.nextLine();
-			moveAmt = 0;
 			playGame();
-		}
-	}
-
-	private static void printStats(int size)
-	{
-		int max, min, avg;
-		switch (size)
-		{
-			case 4:
-				max = 57;
-				min = 14;
-				avg = 37;
-				break;
-			case 5:
-				max = 107;
-				min = 40;
-				avg = 76;
-				break;
-			case 6:
-				max = 185;
-				min = 80;
-				avg = 135;
-				break;
-			case 7:
-				max = 283;
-				min = 145;
-				avg = 218;
-				break;
-			case 8:
-				max = 420;
-				min = 235;
-				avg = 330;
-				break;
-			case 9:
-				max = 585;
-				min = 335;
-				avg = 472;
-				break;
-			default:
-				max = 0;
-				min = 0;
-				avg = 0;
-				break;
-		}
-		print("The max is: " + max + ", the min is: " + min + ", the avg is: " + avg);
 	}
 
 	private static void playAI()
 	{
 		IPuzzleSearch ps = new PuzzleSearch();
-		Node n = new Node(null, fp);
-		ps.search(n);
+		ps.search(new Node(null, puzzle));
 	}
 
 	private static void playGame()
 	{
 		do
 		{
-			fp.printBoard();
+			print(puzzle.getPrintable());
 			int move = getMove();
-			fp.doMove(move);
-			moveAmt++;
-		} while (!fp.solved());
+			puzzle.doMove(move);
+		} while (!puzzle.solved());
 
-		fp.printBoard();
-		System.out.println("Congrats! You won in " + moveAmt + " moves");
+		print(puzzle.getPrintable());
+		System.out.println("Congrats! You won in " + puzzle.getMoveCount() + " moves");
 	}
 
 	private static int getMove()
 	{
-		boolean[] moves = fp.getMoves();
+		boolean[] moves = puzzle.getMoves();
 		int move;
 		do
 		{
@@ -158,6 +93,25 @@ public class Program
 			default:
 				return -1;
 		}
+	}
+
+	private static int printGet(String msg, int low, int high)
+	{
+		return (int) printGet(msg, (double) low, (double) high);
+	}
+
+	private static double printGet(String msg, double low, double high)
+	{
+		print(msg);
+		double choice;
+		do
+		{
+			choice = kb.nextDouble();
+			if (choice < low || choice > high)
+				System.out.println("\nInvalid choice!\n" + low + " - " + high);
+		} while (choice < low || choice > high);
+		kb.nextLine();
+		return choice;
 	}
 
 	private static void print(String msg)
