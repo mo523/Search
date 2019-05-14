@@ -33,6 +33,7 @@ public class Program
 				break;
 
 			default:
+				System.out.println("Not yet Implemented");
 				break;
 		}
 
